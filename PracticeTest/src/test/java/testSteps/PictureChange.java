@@ -1,0 +1,93 @@
+package testSteps;
+
+import cucumber.api.java.After;
+import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
+import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import org.junit.Assert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
+
+public class PictureChange {
+    private WebDriver driver;
+    private String firstAvatar;
+    @Before
+    public void setup() {
+        System.setProperty("webdriver.chrome.driver", "src\\test\\java\\resources\\chromedriver.exe");
+        this.driver = new ChromeDriver();
+        this.driver.manage().window().maximize();
+        this.driver.manage().timeouts().pageLoadTimeout(10000, TimeUnit.MILLISECONDS);
+        this.driver.manage().timeouts().setScriptTimeout(10000, TimeUnit.MILLISECONDS);
+    }
+
+    @After
+    public void teardown() {
+        this.driver.manage().deleteAllCookies();
+        this.driver.quit();
+    }
+
+    @Given("User opens Department of Education website")
+    public void user_opens_Department_of_Education_website() {
+        driver.get("https://practice.skillstestbooking.com");
+    }
+
+    @And("Enters a valid username and password")
+    public void enters_a_valid_username_and_password() {
+        driver.get("https://practice.skillstestbooking.com/");
+        driver.findElement(By.id("display1")).sendKeys("test.bdd.auto");
+        driver.findElement(By.id("display2")).sendKeys("Test123!");
+    }
+
+    @And("Clicks on Login button")
+    public void clicks_on_Login_button() {
+        driver.findElement((By.xpath("//a[text()='Login']"))).click();
+    }
+
+    @And("Opens his profile page")
+    public void opens_his_profile_page() {
+        driver.findElement(By.xpath("//a[@href='#']")).click();
+        driver.findElement((By.xpath("//li/a[text()='Profile']"))).click();
+        WebDriverWait wait1 = new WebDriverWait(driver, 2);
+        WebElement editProfile = driver.findElement(By.xpath("//div/h1[text()='Edit profile']"));
+        wait1.until(ExpectedConditions.visibilityOf(editProfile));
+        Assert.assertTrue(editProfile.isDisplayed());
+    }
+
+    @When("User uploads a new profile picture")
+    public void user_uploads_a_new_profile_picture() throws IOException {
+        WebElement avatar = driver.findElement(By.id("avatar"));
+        WebDriverWait wait1 = new WebDriverWait(driver, 2);
+        wait1.until(ExpectedConditions.visibilityOf(avatar));
+        String avatarBefore;
+        avatarBefore = driver.findElement(By.id("avatar")).getScreenshotAs(OutputType.BASE64);
+        this.firstAvatar = avatarBefore;
+        driver.findElement(By.id("file")).sendKeys("C:\\Users\\pega\\IdeaProjects\\PracticeTest\\src\\test\\java\\resources\\thS2G491AH.jpg");
+    }
+
+    @Then("A new picture appears in user profile")
+    public void a_new_picture_appears_in_user_profile() throws IOException {
+        driver.navigate().refresh();
+        WebElement avatar = driver.findElement(By.id("avatar"));
+        WebDriverWait wait1 = new WebDriverWait(driver, 3);
+        wait1.until(ExpectedConditions.visibilityOf(avatar));
+        String avatarAfter;
+        avatarAfter = driver.findElement(By.id("avatar")).getScreenshotAs(OutputType.BASE64);
+        Assert.assertNotEquals(avatarAfter, firstAvatar);
+        driver.findElement(By.id("file")).sendKeys("C:\\Users\\pega\\IdeaProjects\\PracticeTest\\src\\test\\java\\resources\\avatar.jpg");
+        driver.navigate().refresh();
+        String hsAvatar = driver.findElement(By.id("avatar")).getScreenshotAs(OutputType.BASE64);
+        Assert.assertEquals(hsAvatar, firstAvatar);
+    }
+}
