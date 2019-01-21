@@ -1,0 +1,11 @@
+runner\MainRunner.class
+actions\EditProfileActions.class
+steps\EditProfileSteps.class
+steps\MainViewSteps.class
+setup\TestBase.class
+steps\UserCreationSteps.class
+actions\LoginPageActions.class
+actions\UserCreationActions.class
+actions\MainViewActions.class
+steps\LoginPageSteps.class
+setup\Hooks.class
